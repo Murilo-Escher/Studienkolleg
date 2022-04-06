@@ -21,15 +21,9 @@ begin
 end;
 
 procedure isort(var anker: zListEl; zahl: integer);
-var aux: zListEl;
 begin
   if (anker = NIL) or (zahl < anker^.wert) then
-    begin
-      new(aux);
-      aux^.wert := zahl;
-      aux^.next := anker;
-      anker := aux;
-    end
+    pushEl(anker, zahl)
   else
     isort(anker^.next, zahl);
 end;
@@ -49,12 +43,12 @@ begin
     zaehleElemente := zaehleElemente(z^.next) + 1;
 end;
 
-function istDrin(z: zListEl; zahl: integer) : zListEl;
+function istDrin(z: zListEl; zahl: integer) : boolean;
 begin
   if z = NIL then
-    istDrin := NIL
+    istDrin := false
   else if z^.wert = zahl then
-    istDrin := z
+    istDrin := true
   else
     istDrin := istDrin(z^.next, zahl);
 end;
@@ -79,19 +73,14 @@ end;
 procedure entferneElement(var anker: zListEl; zahl: integer);
 var aux: zListEl;
 begin
-  if anker = NIL then
-    writeln('Das Element ', zahl, ' ist nicht in der Liste.')
-  else
+  if anker^.wert = zahl then
     begin
-      if anker^.wert = zahl then
-        begin
-          aux := anker;
-          anker := anker^.next;
-          dispose(aux);
-        end
-      else
-        entferneElement(anker^.next, zahl);
-    end;
+      aux := anker;
+      anker := anker^.next;
+      dispose(aux);
+    end
+  else
+    entferneElement(anker^.next, zahl);
 end;
 
 var
@@ -105,8 +94,8 @@ begin
   new(anker);
   anker := NIL;
 
-  max_size := random(10) + 5;
-  max_wert := random(20);
+  max_size := random(5) + 5;
+  max_wert := random(10) + 10;
 
   genListe(anker, max_size, max_wert);
 
@@ -114,11 +103,12 @@ begin
 
   repeat
     random_zahl := random(max_wert);
-  until istDrin(anker, random_zahl) <> NIL;
+  until istDrin(anker, random_zahl) = true;
 
   writeln('Das zu löschende Element ist ', random_zahl);
 
-  entferneElement(anker, random_zahl);
+  if istDrin(anker, random_zahl) = true then
+    entferneElement(anker, random_zahl);
 
   ausgabe(anker);
 
